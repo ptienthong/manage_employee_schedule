@@ -1,0 +1,37 @@
+employees:
+  - name: Bob
+    preferences:
+      - day: Mon
+        time: morning
+      - day: Tue
+        time: evening
+      - day: Wed
+        time: morning
+      - day: Thu
+        time: afternoon
+      - day: Fri
+        time: evening
+  - name: Sarah
+    preferences:
+      - day: Tuesday
+        time: afternoon
+      - day: Wed
+        time: morning
+      - day: Thu
+        time: afternoon
+      - day: Fri
+        time: evening
+      - day: Sat
+        time: morning
+  - name: Alice
+    preferences:
+      - day: Mon
+        time: afternoon
+      - day: Tue
+        time: morning
+      - day: Wed
+        time: evening
+      - day: Thu
+        time: morning
+      - day: Fri
+        time: afternoon
