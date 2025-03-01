@@ -1,4 +1,5 @@
 import pytest
+import os
 from manage_employee_schedule import ManageSchedule
 
 def test_initializeEmployeePerShiftDay():
@@ -6,19 +7,19 @@ def test_initializeEmployeePerShiftDay():
     schedule.initializeEmployeePerShiftDay()
 
     # monday
-    assert schedule.employeeNumberPerShiftDay[1] == [0, 0, 0]
+    assert schedule.employeeNumberPerShiftDay['MONDAY'] == [0, 0, 0]
     # tuesday
-    assert schedule.employeeNumberPerShiftDay[2] == [0, 0, 0]
+    assert schedule.employeeNumberPerShiftDay['TUESDAY'] == [0, 0, 0]
     # wednesday
-    assert schedule.employeeNumberPerShiftDay[3] == [0, 0, 0]
+    assert schedule.employeeNumberPerShiftDay['WEDNESDAY'] == [0, 0, 0]
     # thursday
-    assert schedule.employeeNumberPerShiftDay[4] == [0, 0, 0]
+    assert schedule.employeeNumberPerShiftDay['THURSDAY'] == [0, 0, 0]
     # friday
-    assert schedule.employeeNumberPerShiftDay[5] == [0, 0, 0]
+    assert schedule.employeeNumberPerShiftDay['FRIDAY'] == [0, 0, 0]
     # saturday
-    assert schedule.employeeNumberPerShiftDay[6] == [0, 0, 0]
+    assert schedule.employeeNumberPerShiftDay['SATURDAY'] == [0, 0, 0]
     # sunday
-    assert schedule.employeeNumberPerShiftDay[7] == [0, 0, 0]
+    assert schedule.employeeNumberPerShiftDay['SUNDAY'] == [0, 0, 0]
 
 def test_employee_number_per_day():
     schedule = ManageSchedule('schedule')
@@ -54,5 +55,24 @@ def test_update_employee_number_per_day():
 
     schedule.updateEmployeeNumPerShiftDay("wed", "Morning")
     assert schedule.getEmployeeNumPerShiftDay("weD") == (2, 0, 0)
+
+def test_get_numof_workday():
+    schedule = ManageSchedule('schedule')
+    filepath = os.path.expanduser('~/manage_employee_schedule/input/preference_schedule.yaml')
+    schedule.getPreference(filepath)
+
+    assert schedule.getNumofWorkPreference('bob') == 5
+    assert schedule.getNumofWorkPreference('sarah') == 5
+    assert schedule.getNumofWorkPreference('Alice') == 5
+
+def test_is_one_shift_per_day():
+    schedule = ManageSchedule('schedule')
+    filepath = os.path.expanduser('~/manage_employee_schedule/input/preference_schedule.yaml')
+    schedule.getPreference(filepath)
+
+    assert schedule.isOneShiftPerDay('bob') == True
+    assert schedule.isOneShiftPerDay('sarah') == True
+    assert schedule.isOneShiftPerDay('Alice') == True
+
 
     

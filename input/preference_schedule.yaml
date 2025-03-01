@@ -35,3 +35,83 @@ employees:
         time: morning
       - day: Fri
         time: afternoon
+  - name: John
+    preferences:
+      - day: Mon
+        time: evening
+      - day: Tue
+        time: morning
+      - day: Wed
+        time: afternoon
+  - name: Emma
+    preferences:
+      - day: Mon
+        time: morning
+      - day: Tue
+        time: afternoon
+      - day: Wed
+        time: evening
+      - day: Thu
+        time: morning
+      - day: Fri
+        time: afternoon
+  - name: Michael
+    preferences:
+      - day: Tue
+        time: morning
+      - day: Wed
+        time: afternoon
+      - day: Thu
+        time: evening
+      - day: Fri
+        time: morning
+      - day: Sat
+        time: afternoon
+  - name: Olivia
+    preferences:
+      - day: Mon
+        time: afternoon
+      - day: Tue
+        time: evening
+      - day: Wed
+        time: morning
+      - day: Thu
+        time: afternoon
+      - day: Fri
+        time: evening
+  - name: David
+    preferences:
+      - day: Mon
+        time: morning
+      - day: Tue
+        time: afternoon
+      - day: Wed
+        time: evening
+      - day: Thu
+        time: morning
+      - day: Fri
+        time: afternoon
+  - name: Sophia
+    preferences:
+      - day: Mon
+        time: evening
+      - day: Tue
+        time: morning
+      - day: Wed
+        time: afternoon
+      - day: Thu
+        time: evening
+      - day: Fri
+        time: morning
+  - name: James
+    preferences:
+      - day: Mon
+        time: morning
+      - day: Tue
+        time: afternoon
+  #     - day: Wed
+  #       time: evening
+  #     - day: Thu
+  #       time: morning
+  #     - day: Fri
+  #       time: afternoon

@@ -2,6 +2,7 @@ from typing import List, Dict, Set
 from enum import Enum
 import logging
 import yaml
+import random
 logging.basicConfig(level=logging.INFO)
 
 class Shift(Enum):
@@ -23,7 +24,6 @@ class ManageSchedule:
         self.employeeSchedule = {} # {name: [(day1,shift1), (day2,shift2), ...]}
         self.employeeNumberPerShiftDay = {} # {day: [[morning,x],[afternoon,y],[evening,z]]}
         self.preferences = {} # {name: [(day1,shift1), (day2,shift2), ...]}
-        self.employeeWorkMaxDays = [] # [name1, name2, name3, ...]
 
         self.initializeEmployeePerShiftDay()
         
@@ -42,17 +42,18 @@ class ManageSchedule:
                 day = slot['day']
                 shift = slot['time']
                 slots.append((day, shift))
-            self.preferences[employee['name']] = slots
-        #print(self.preferences['Bob'])
-        #print(self.preferences['Sarah'])
+            self.preferences[employee['name'].upper()] = slots
 
-    def getEmployeeInfos(self, filename: str) -> bool:
+    def writeOutput(self, filename: str) -> bool:
         '''
-        initialize employeeInfos with names
+        write the output to the file
         return true if successful
         '''
-        pass
-
+        with open(filename, 'w') as file:
+            yaml.dump(self.employeeSchedule, file)
+        logging.debug(f'successfully wrote the schedule to {filename}')
+        return True
+    
     def initializeEmployeePerShiftDay(self) -> None:
         '''
         initialize employeePerShiftDay with empty list
@@ -61,56 +62,98 @@ class ManageSchedule:
             morning = 0
             afternoon = 0
             evening = 0
-            self.employeeNumberPerShiftDay[day.value] = [morning, afternoon, evening]
+            self.employeeNumberPerShiftDay[day.name] = [morning, afternoon, evening]
         logging.info('finish initializing employeeNumberPerShiftDay')
         
 
-    def assignShift(self, name: str, shiftLimit: int = 4, maxWorkDay: int = 5) -> None:
+    def assignShift(self, shiftLimit: int = 4, maxWorkDay: int = 5) -> None:
         '''
         assign shift to employees
 
         This method will assign shift to employees based on their preferences.
         Use this following methods
-
-        manages:
-        main loop1: go each employee in preferences (O(n))
-            if isOneShiftPerday() is false
-                error: employee "name" has more than one shift per day
-                break
-            if getNumofWorkDay() > maxWorkDay
-                error: employee "name" works more than 5 days
-                break
-            if getNumofWorkDay() == maxWorkDay    
-                add in a list of employees who work maximum - employeeWorkMaxDays: [name1, name2, name3, ...]
-
-        if those conditions are met, then assign shift to the employee as follows
-        main loop2: go through each employee in preferences (O(n))
-            for each day in (day,shift)
-                numMorning, numAfternoon, numEvening = employeeNumPerShiftDay(day)
-                if shift == 1 (morning)
-                    if numMorning < shiftLimit
-                        assign shift to the employee
-                    else
-                        assign shift to the next shift on the same day or next day
-                if shift == 2 (afternoon)
-                    if numAfternoon < shiftLimit
-                        assign shift to the employee
-                    else
-                        assign shift to the next shift on the same day or next day
-                if shift == 3 (evening)
-                    if numEvening < shiftLimit
-                        assign shift to the employee
-                    else
-                        assign shift to the next shift on the same day or next day
-        
-        main loop3: go through each day in employeeNumberPerShiftDay
-            numMorning, numAfternoon, numEvening = employeeNumPerShiftDay(day)
-            if any of them < 2:
-                randomly assign shift to the employee who has not on employeeWorkMaxDays
-                
         '''
-        pass
+        for name, _ in self.preferences.items():
+            if not self.isOneShiftPerDay(name):
+                logging.error(f'employee {name} has more than one preference shift per day!')
+                break
+            if self.getNumofWorkPreference(name) > maxWorkDay:
+                logging.error(f'employee {name} has preference work more than 5 days!')
+                break
 
+        for name, preference in self.preferences.items():
+            for day, shift in preference:
+                if shift == 'morning':
+                    numMorning, _, _ = self.getEmployeeNumPerShiftDay(day)
+                    if self.getNumberofWorkAssigned(name) < maxWorkDay and numMorning < 2:
+                        self.updateEmployeeNumPerShiftDay(day, shift)
+                        self.setEmployeeSchedule(name, day, shift)
+                    else:
+                        # assign alternate shift
+                        shift = self.findAvailableShiftDay(name, day, maxWorkDay)
+                        if shift is not None:
+                            self.setEmployeeSchedule(name, day, shift)
+                            self.updateEmployeeNumPerShiftDay(day, shift)
+                        else:
+                            # assign shift to the employee next available day
+                            for next_day in self.findNextDays(day):
+                                shift = self.findAvailableShiftDay(name, next_day, maxWorkDay)
+                                if shift is None:
+                                    continue
+                                else:    
+                                    self.setEmployeeSchedule(name, next_day, shift)
+                                    self.updateEmployeeNumPerShiftDay(next_day, shift)
+                                    break
+                elif shift == 'afternoon':
+                    _, numAfternoon, _ = self.getEmployeeNumPerShiftDay(day)
+                    if self.getNumberofWorkAssigned(name) < maxWorkDay and numAfternoon < 2:
+                        self.updateEmployeeNumPerShiftDay(day, shift)
+                        self.setEmployeeSchedule(name, day, shift)
+                    else:
+                        # assign alternate shift
+                        shift = self.findAvailableShiftDay(name, day, maxWorkDay)
+                        if shift is not None:
+                            self.setEmployeeSchedule(name, day, shift)
+                            self.updateEmployeeNumPerShiftDay(day, shift)
+                        else:
+                            # assign shift to the employee next available day
+                            for next_day in self.findNextDays(day):
+                                shift = self.findAvailableShiftDay(name, next_day, maxWorkDay)
+                                if shift is None:
+                                    continue
+                                else:    
+                                    self.setEmployeeSchedule(name, next_day, shift)
+                                    self.updateEmployeeNumPerShiftDay(next_day, shift)
+                                    break
+                elif shift == 'evening':
+                    _, _, numEvening = self.getEmployeeNumPerShiftDay(day)
+                    if self.getNumberofWorkAssigned(name) < maxWorkDay and numEvening < 2:
+                        self.updateEmployeeNumPerShiftDay(day, shift)
+                        self.setEmployeeSchedule(name, day, shift)
+                    else:
+                        # assign alternate shift
+                        shift = self.findAvailableShiftDay(name, day, maxWorkDay)
+                        if shift is not None:
+                            self.setEmployeeSchedule(name, day, shift)
+                            self.updateEmployeeNumPerShiftDay(day, shift)
+                        else:
+                            # assign shift to the employee next available day
+                            for next_day in self.findNextDays(day):
+                                shift = self.findAvailableShiftDay(name, next_day, maxWorkDay)
+                                if shift is None:
+                                    continue
+                                else:    
+                                    self.setEmployeeSchedule(name, next_day, shift)
+                                    self.updateEmployeeNumPerShiftDay(next_day, shift)
+                                    break
+                else:
+                    logging.error(f'invalid shift: {shift}')
+                    ValueError(f'invalid shift: {shift}')
+                    break
+
+        # fill under staffed shifts
+        self.fillUnderStaffedÍhifts()       
+                        
     def isOneShiftPerDay(self, name: str) -> bool:
         '''
         return true if one shift per day of the employee
@@ -121,9 +164,14 @@ class ManageSchedule:
         datastructure: preferences
         is used in assignShift method
         '''
-        pass
-
-    def getNumofWorkDay(self, name: str) -> int:
+        perference_list = self.preferences[name.upper()]
+        for i in range(len(perference_list)):
+            for j in range(i+1, len(perference_list)):
+                if perference_list[i][0].upper() == perference_list[j][0].upper():
+                    return False
+        return True
+    
+    def getNumofWorkPreference(self, name: str) -> int:
         '''
         return the number of days the employee works
 
@@ -132,7 +180,18 @@ class ManageSchedule:
         datastructure: preferences
         is used in assignShift method
         '''
-        pass
+        return len(self.preferences[name.upper()])
+    
+    def getNumberofWorkAssigned(self, name: str) -> int:
+        '''
+        return the number of days the employee works
+
+        e.g. for employee A, count the number of tuples (day,shift) in employeeSchedule.
+        
+        datastructure: employeeSchedule
+        is used in assignShift method
+        '''
+        return len(self.employeeSchedule.get(name.upper(), []))
 
     def getEmployeeNumPerShiftDay(self, day: str) -> tuple:
         '''
@@ -147,39 +206,39 @@ class ManageSchedule:
         '''
         match day.upper():
             case 'MON':
-                numMorning = self.employeeNumberPerShiftDay[1][Shift.MORNING.value]
-                numAfternoon = self.employeeNumberPerShiftDay[1][Shift.AFTERNOON.value]
-                numEvening = self.employeeNumberPerShiftDay[1][Shift.EVENING.value]
+                numMorning = self.employeeNumberPerShiftDay[Day.MONDAY.name][Shift.MORNING.value]
+                numAfternoon = self.employeeNumberPerShiftDay[Day.MONDAY.name][Shift.AFTERNOON.value]
+                numEvening = self.employeeNumberPerShiftDay[Day.MONDAY.name][Shift.EVENING.value]
             case 'TUE':
-                numMorning = self.employeeNumberPerShiftDay[2][Shift.MORNING.value]
-                numAfternoon = self.employeeNumberPerShiftDay[2][Shift.AFTERNOON.value]
-                numEvening = self.employeeNumberPerShiftDay[2][Shift.EVENING.value]
+                numMorning = self.employeeNumberPerShiftDay[Day.TUESDAY.name][Shift.MORNING.value]
+                numAfternoon = self.employeeNumberPerShiftDay[Day.TUESDAY.name][Shift.AFTERNOON.value]
+                numEvening = self.employeeNumberPerShiftDay[Day.TUESDAY.name][Shift.EVENING.value]
             case 'WED':
-                numMorning = self.employeeNumberPerShiftDay[3][Shift.MORNING.value]
-                numAfternoon = self.employeeNumberPerShiftDay[3][Shift.AFTERNOON.value]
-                numEvening = self.employeeNumberPerShiftDay[3][Shift.EVENING.value]
+                numMorning = self.employeeNumberPerShiftDay[Day.WEDNESDAY.name][Shift.MORNING.value]
+                numAfternoon = self.employeeNumberPerShiftDay[Day.WEDNESDAY.name][Shift.AFTERNOON.value]
+                numEvening = self.employeeNumberPerShiftDay[Day.WEDNESDAY.name][Shift.EVENING.value]
             case 'THU':
-                numMorning = self.employeeNumberPerShiftDay[4][Shift.MORNING.value]
-                numAfternoon = self.employeeNumberPerShiftDay[4][Shift.AFTERNOON.value]
-                numEvening = self.employeeNumberPerShiftDay[4][Shift.EVENING.value]
+                numMorning = self.employeeNumberPerShiftDay[Day.THURSDAY.name][Shift.MORNING.value]
+                numAfternoon = self.employeeNumberPerShiftDay[Day.THURSDAY.name][Shift.AFTERNOON.value]
+                numEvening = self.employeeNumberPerShiftDay[Day.THURSDAY.name][Shift.EVENING.value]
             case 'FRI':
-                numMorning = self.employeeNumberPerShiftDay[5][Shift.MORNING.value]
-                numAfternoon = self.employeeNumberPerShiftDay[5][Shift.AFTERNOON.value]
-                numEvening = self.employeeNumberPerShiftDay[5][Shift.EVENING.value]
+                numMorning = self.employeeNumberPerShiftDay[Day.FRIDAY.name][Shift.MORNING.value]
+                numAfternoon = self.employeeNumberPerShiftDay[Day.FRIDAY.name][Shift.AFTERNOON.value]
+                numEvening = self.employeeNumberPerShiftDay[Day.FRIDAY.name][Shift.EVENING.value]
             case 'SAT':
-                numMorning = self.employeeNumberPerShiftDay[6][Shift.MORNING.value]
-                numAfternoon = self.employeeNumberPerShiftDay[6][Shift.AFTERNOON.value]
-                numEvening = self.employeeNumberPerShiftDay[6][Shift.EVENING.value]
+                numMorning = self.employeeNumberPerShiftDay[Day.SATURDAY.name][Shift.MORNING.value]
+                numAfternoon = self.employeeNumberPerShiftDay[Day.SATURDAY.name][Shift.AFTERNOON.value]
+                numEvening = self.employeeNumberPerShiftDay[Day.SATURDAY.name][Shift.EVENING.value]
             case 'SUN':
-                numMorning = self.employeeNumberPerShiftDay[7][Shift.MORNING.value]
-                numAfternoon = self.employeeNumberPerShiftDay[7][Shift.AFTERNOON.value]
-                numEvening = self.employeeNumberPerShiftDay[7][Shift.EVENING.value]
+                numMorning = self.employeeNumberPerShiftDay[Day.SUNDAY.name][Shift.MORNING.value]
+                numAfternoon = self.employeeNumberPerShiftDay[Day.SUNDAY.name][Shift.AFTERNOON.value]
+                numEvening = self.employeeNumberPerShiftDay[Day.SUNDAY.name][Shift.EVENING.value]
             case _:
-                numMorning = self.employeeNumberPerShiftDay[Day[day.upper()].value][Shift.MORNING.value]
-                numAfternoon = self.employeeNumberPerShiftDay[Day[day.upper()].value][Shift.AFTERNOON.value]
-                numEvening = self.employeeNumberPerShiftDay[Day[day.upper()].value][Shift.EVENING.value]
+                numMorning = self.employeeNumberPerShiftDay[Day[day.upper()].name][Shift.MORNING.value]
+                numAfternoon = self.employeeNumberPerShiftDay[Day[day.upper()].name][Shift.AFTERNOON.value]
+                numEvening = self.employeeNumberPerShiftDay[Day[day.upper()].name][Shift.EVENING.value]
         
-        return numMorning, numAfternoon, numEvening
+        return (numMorning, numAfternoon, numEvening)
     
     def updateEmployeeNumPerShiftDay(self, day: str, shift: str) -> None:
         '''
@@ -187,25 +246,128 @@ class ManageSchedule:
         '''
         match day.upper():
             case 'MON':
-                self.employeeNumberPerShiftDay[1][Shift[shift.upper()].value] += 1
+                self.employeeNumberPerShiftDay[Day.MONDAY.name][Shift[shift.upper()].value] += 1
             case 'TUE':
-                self.employeeNumberPerShiftDay[2][Shift[shift.upper()].value] += 1
+                self.employeeNumberPerShiftDay[Day.TUESDAY.name][Shift[shift.upper()].value] += 1
             case 'WED':
-                self.employeeNumberPerShiftDay[3][Shift[shift.upper()].value] += 1
+                self.employeeNumberPerShiftDay[Day.WEDNESDAY.name][Shift[shift.upper()].value] += 1
             case 'THU':
-                self.employeeNumberPerShiftDay[4][Shift[shift.upper()].value] += 1
+                self.employeeNumberPerShiftDay[Day.THURSDAY.name][Shift[shift.upper()].value] += 1
             case 'FRI':
-                self.employeeNumberPerShiftDay[5][Shift[shift.upper()].value] += 1
+                self.employeeNumberPerShiftDay[Day.FRIDAY.name][Shift[shift.upper()].value] += 1
             case 'SAT':
-                self.employeeNumberPerShiftDay[6][Shift[shift.upper()].value] += 1
+                self.employeeNumberPerShiftDay[Day.SATURDAY.name][Shift[shift.upper()].value] += 1
             case 'SUN':
-                self.employeeNumberPerShiftDay[7][Shift[shift.upper()].value] += 1
+                self.employeeNumberPerShiftDay[Day.SUNDAY.name][Shift[shift.upper()].value] += 1
             case _:
-                self.employeeNumberPerShiftDay[Day[day.upper()].value][Shift[shift.upper()].value] += 1
+                self.employeeNumberPerShiftDay[Day[day.upper()].name][Shift[shift.upper()].value] += 1
         return None
     
+    def setEmployeeSchedule(self, name: str, day: str, shift: str) -> None:
+        '''
+        set the employee schedule
+        '''
+        match day.upper():
+                case 'MON':
+                    schedule = (Day.MONDAY.name, Shift[shift.upper()].name)
+                case 'TUE':
+                    schedule = (Day.TUESDAY.name, Shift[shift.upper()].name)
+                case 'WED':
+                    schedule = (Day.WEDNESDAY.name, Shift[shift.upper()].name)
+                case 'THU':
+                    schedule = (Day.THURSDAY.name, Shift[shift.upper()].name)
+                case 'FRI':
+                    schedule = (Day.FRIDAY.name, Shift[shift.upper()].name)
+                case 'SAT':
+                    schedule = (Day.SATURDAY.name, Shift[shift.upper()].name)
+                case 'SUN':
+                    schedule = (Day.SUNDAY.name, Shift[shift.upper()].name)
+                case _:
+                    schedule = (Day[day.upper()].name, Shift[shift.upper()].name)
+        
+        if name.upper() not in self.employeeSchedule.keys():
+            self.employeeSchedule[name.upper()] = []
+            self.employeeSchedule[name.upper()].append(schedule)
+        else:
+            self.employeeSchedule[name.upper()].append(schedule)
 
+        return None
+    
+    def findAvailableShiftDay(self, name: str, day: str, maxWorkDay: int) -> str:
+        '''
+        find available shift
+        '''
+        numMorning, numAfternoon, numEvening = self.getEmployeeNumPerShiftDay(day)
+        for shift in ['morning', 'afternoon', 'evening']:
+            if shift == 'morning' and numMorning < 2:
+                if self.getNumberofWorkAssigned(name) < maxWorkDay:
+                    return 'morning'
+            elif shift == 'afternoon' and numAfternoon < 2:
+                if self.getNumberofWorkAssigned(name) < maxWorkDay:
+                    return 'afternoon'
+            elif shift == 'evening' and numEvening < 2:
+                if self.getNumberofWorkAssigned(name) < maxWorkDay:
+                    return 'evening'
+            else:
+                return None
+        
+    def findNextDays(self, day: str) -> tuple:
+        '''
+        return the next days
+        '''
+        match day.upper():
+            case 'MON':
+                return ('TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN')
+            case 'TUE':
+                return ('WED', 'THU', 'FRI', 'SAT', 'SUN', 'MON')
+            case 'WED':
+                return ('THU', 'FRI', 'SAT', 'SUN', 'MON', 'TUE')
+            case 'THU':
+                return ('FRI', 'SAT', 'SUN', 'MON', 'TUE', 'WED')
+            case 'FRI':
+                return ('SAT', 'SUN', 'MON', 'TUE', 'WED', 'THU')
+            case 'SAT':
+                return ('SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI')
+            case 'SUN':
+                return ('MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT')
+            case _:
+                return ()
+    
+    def fillUnderStaffedÍhifts(self):
+        '''
+        fill the under staffed shifts
+        '''
+        availableEmployees = [name for name in self.preferences.keys() if self.getNumberofWorkAssigned(name) < 5]
+        for day, shifts in self.employeeNumberPerShiftDay.items():
+            morning, afternoon, evening = self.getEmployeeNumPerShiftDay(day)
+            while morning < 2 and availableEmployees:
+                selectedName = random.choice(availableEmployees)
+                self.setEmployeeSchedule(selectedName, day, 'morning')
+                self.updateEmployeeNumPerShiftDay(day, 'morning')
+                morning, _, _ = self.getEmployeeNumPerShiftDay(day)
+                if self.getNumberofWorkAssigned(selectedName) == 5:
+                    availableEmployees.remove(selectedName)
+            while afternoon < 2 and availableEmployees:
+                selectedName = random.choice(availableEmployees)
+                self.setEmployeeSchedule(selectedName, day, 'afternoon')
+                self.updateEmployeeNumPerShiftDay(day, 'afternoon')
+                _, afternoon, _ = self.getEmployeeNumPerShiftDay(day)
+                if self.getNumberofWorkAssigned(selectedName) == 5:
+                    availableEmployees.remove(selectedName)
+            while evening < 2 and availableEmployees:
+                selectedName = random.choice(availableEmployees)
+                self.setEmployeeSchedule(selectedName, day, 'evening')
+                self.updateEmployeeNumPerShiftDay(day, 'evening')
+                _, _, evening = self.getEmployeeNumPerShiftDay(day)
+                if self.getNumberofWorkAssigned(selectedName) == 5:
+                    availableEmployees.remove(selectedName)
+    
+        
 if __name__ == '__main__':
     schedule = ManageSchedule('schedule')
 
     schedule.getPreference('input/preference_schedule.yaml')
+    schedule.assignShift(shiftLimit=3, maxWorkDay=5)
+    logging.info(f'successfully assigned shift to employees')
+    schedule.writeOutput('output/schedule.yaml')
+    logging.info(f'successfully wrote the schedule to output/schedule.yaml')

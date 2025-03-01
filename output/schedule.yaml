@@ -1,0 +1,136 @@
+ALICE:
+- !!python/tuple
+  - MONDAY
+  - AFTERNOON
+- !!python/tuple
+  - TUESDAY
+  - MORNING
+- !!python/tuple
+  - WEDNESDAY
+  - EVENING
+- !!python/tuple
+  - THURSDAY
+  - MORNING
+- !!python/tuple
+  - FRIDAY
+  - AFTERNOON
+BOB:
+- !!python/tuple
+  - MONDAY
+  - MORNING
+- !!python/tuple
+  - TUESDAY
+  - EVENING
+- !!python/tuple
+  - WEDNESDAY
+  - MORNING
+- !!python/tuple
+  - THURSDAY
+  - AFTERNOON
+- !!python/tuple
+  - FRIDAY
+  - EVENING
+DAVID:
+- !!python/tuple
+  - SATURDAY
+  - AFTERNOON
+- !!python/tuple
+  - SATURDAY
+  - EVENING
+- !!python/tuple
+  - SUNDAY
+  - EVENING
+EMMA:
+- !!python/tuple
+  - MONDAY
+  - MORNING
+- !!python/tuple
+  - TUESDAY
+  - AFTERNOON
+- !!python/tuple
+  - WEDNESDAY
+  - EVENING
+- !!python/tuple
+  - THURSDAY
+  - MORNING
+- !!python/tuple
+  - FRIDAY
+  - AFTERNOON
+JAMES:
+- !!python/tuple
+  - SUNDAY
+  - AFTERNOON
+JOHN:
+- !!python/tuple
+  - MONDAY
+  - EVENING
+- !!python/tuple
+  - TUESDAY
+  - MORNING
+- !!python/tuple
+  - WEDNESDAY
+  - AFTERNOON
+- !!python/tuple
+  - SATURDAY
+  - EVENING
+- !!python/tuple
+  - SUNDAY
+  - AFTERNOON
+MICHAEL:
+- !!python/tuple
+  - FRIDAY
+  - MORNING
+- !!python/tuple
+  - WEDNESDAY
+  - AFTERNOON
+- !!python/tuple
+  - THURSDAY
+  - EVENING
+- !!python/tuple
+  - FRIDAY
+  - MORNING
+- !!python/tuple
+  - SATURDAY
+  - AFTERNOON
+OLIVIA:
+- !!python/tuple
+  - MONDAY
+  - AFTERNOON
+- !!python/tuple
+  - TUESDAY
+  - EVENING
+- !!python/tuple
+  - SATURDAY
+  - MORNING
+- !!python/tuple
+  - SUNDAY
+  - MORNING
+- !!python/tuple
+  - SUNDAY
+  - MORNING
+SARAH:
+- !!python/tuple
+  - TUESDAY
+  - AFTERNOON
+- !!python/tuple
+  - WEDNESDAY
+  - MORNING
+- !!python/tuple
+  - THURSDAY
+  - AFTERNOON
+- !!python/tuple
+  - FRIDAY
+  - EVENING
+- !!python/tuple
+  - SATURDAY
+  - MORNING
+SOPHIA:
+- !!python/tuple
+  - MONDAY
+  - EVENING
+- !!python/tuple
+  - THURSDAY
+  - EVENING
+- !!python/tuple
+  - SUNDAY
+  - EVENING
