@@ -109,9 +109,4 @@ employees:
         time: morning
       - day: Tue
         time: afternoon
-  #     - day: Wed
-  #       time: evening
-  #     - day: Thu
-  #       time: morning
-  #     - day: Fri
-  #       time: afternoon
+        

@@ -30,16 +30,6 @@ BOB:
 - !!python/tuple
   - FRIDAY
   - EVENING
-DAVID:
-- !!python/tuple
-  - SATURDAY
-  - AFTERNOON
-- !!python/tuple
-  - SATURDAY
-  - EVENING
-- !!python/tuple
-  - SUNDAY
-  - EVENING
 EMMA:
 - !!python/tuple
   - MONDAY
@@ -56,10 +46,6 @@ EMMA:
 - !!python/tuple
   - FRIDAY
   - AFTERNOON
-JAMES:
-- !!python/tuple
-  - SUNDAY
-  - AFTERNOON
 JOHN:
 - !!python/tuple
   - MONDAY
@@ -69,12 +55,6 @@ JOHN:
   - MORNING
 - !!python/tuple
   - WEDNESDAY
-  - AFTERNOON
-- !!python/tuple
-  - SATURDAY
-  - EVENING
-- !!python/tuple
-  - SUNDAY
   - AFTERNOON
 MICHAEL:
 - !!python/tuple
@@ -130,7 +110,4 @@ SOPHIA:
   - EVENING
 - !!python/tuple
   - THURSDAY
-  - EVENING
-- !!python/tuple
-  - SUNDAY
   - EVENING

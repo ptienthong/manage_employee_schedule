@@ -1,0 +1,94 @@
+Alice:
+  - day: MON
+    shift: afternoon
+  - day: TUE
+    shift: morning
+  - day: WED
+    shift: evening
+  - day: THU
+    shift: morning
+  - day: FRI
+    shift: afternoon
+Bob:
+  - day: MON
+    shift: morning
+  - day: TUE
+    shift: evening
+  - day: WED
+    shift: morning
+  - day: THU
+    shift: afternoon
+  - day: FRI
+    shift: evening
+David:
+  - day: MON
+    shift: morning
+  - day: TUE
+    shift: afternoon
+  - day: WED
+    shift: evening
+  - day: THU
+    shift: morning
+  - day: FRI
+    shift: afternoon
+Emma:
+  - day: MON
+    shift: afternoon
+  - day: TUE
+    shift: afternoon
+  - day: WED
+    shift: morning
+  - day: THU
+    shift: afternoon
+  - day: FRI
+    shift: morning
+James:
+  - day: MON
+    shift: evening
+  - day: TUE
+    shift: morning
+John:
+  - day: MON
+    shift: evening
+  - day: TUE
+    shift: evening
+  - day: WED
+    shift: afternoon
+Michael:
+  - day: WED
+    shift: afternoon
+  - day: THU
+    shift: evening
+  - day: THU
+    shift: evening
+  - day: FRI
+    shift: morning
+  - day: SAT
+    shift: afternoon
+Olivia:
+  - day: FRI
+    shift: evening
+  - day: SAT
+    shift: morning
+  - day: SAT
+    shift: morning
+  - day: SAT
+    shift: afternoon
+  - day: SAT
+    shift: evening
+Sarah:
+  - day: SAT
+    shift: evening
+  - day: SUN
+    shift: morning
+  - day: SUN
+    shift: morning
+  - day: SUN
+    shift: afternoon
+  - day: SUN
+    shift: afternoon
+Sophia:
+  - day: SUN
+    shift: evening
+  - day: SUN
+    shift: evening

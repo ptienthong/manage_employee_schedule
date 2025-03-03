@@ -20,14 +20,14 @@ class Day(Enum):
     SUNDAY = 7
 
 class ManageSchedule:
-    def __init__(self, schedule):
+    def __init__(self):
         self.employeeSchedule = {} # {name: [(day1,shift1), (day2,shift2), ...]}
         self.employeeNumberPerShiftDay = {} # {day: [[morning,x],[afternoon,y],[evening,z]]}
         self.preferences = {} # {name: [(day1,shift1), (day2,shift2), ...]}
 
         self.initializeEmployeePerShiftDay()
         
-    def getPreference(self, filename: str) -> bool:
+    def getPreference(self, filename: str) -> None:
         '''
         set a preference of employees' schedule
         return true if successful
@@ -44,7 +44,7 @@ class ManageSchedule:
                 slots.append((day, shift))
             self.preferences[employee['name'].upper()] = slots
 
-    def writeOutput(self, filename: str) -> bool:
+    def writeOutput(self, filename: str) -> None:
         '''
         write the output to the file
         return true if successful
@@ -52,21 +52,16 @@ class ManageSchedule:
         with open(filename, 'w') as file:
             yaml.dump(self.employeeSchedule, file)
         logging.debug(f'successfully wrote the schedule to {filename}')
-        return True
     
     def initializeEmployeePerShiftDay(self) -> None:
         '''
         initialize employeePerShiftDay with empty list
         '''
         for day in (Day):
-            morning = 0
-            afternoon = 0
-            evening = 0
-            self.employeeNumberPerShiftDay[day.name] = [morning, afternoon, evening]
+            self.employeeNumberPerShiftDay[day.name] = [0, 0, 0]
         logging.info('finish initializing employeeNumberPerShiftDay')
         
-
-    def assignShift(self, shiftLimit: int = 4, maxWorkDay: int = 5) -> None:
+    def assignShift(self, maxWorkDay: int = 5) -> None:
         '''
         assign shift to employees
 
@@ -364,10 +359,10 @@ class ManageSchedule:
     
         
 if __name__ == '__main__':
-    schedule = ManageSchedule('schedule')
+    schedule = ManageSchedule()
 
     schedule.getPreference('input/preference_schedule.yaml')
-    schedule.assignShift(shiftLimit=3, maxWorkDay=5)
+    schedule.assignShift(maxWorkDay=5)
     logging.info(f'successfully assigned shift to employees')
     schedule.writeOutput('output/schedule.yaml')
     logging.info(f'successfully wrote the schedule to output/schedule.yaml')
